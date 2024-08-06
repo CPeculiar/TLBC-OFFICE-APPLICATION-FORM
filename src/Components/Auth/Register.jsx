@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { collection, doc, addDoc, setDoc } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { collection, doc, addDoc } from "firebase/firestore";
 import { Form, Button, Container, Row, Col, Card, Alert } from "react-bootstrap";
 import {  db } from "../Services/firebaseConfig";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ const RegistrationForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
   // const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -26,6 +27,18 @@ const RegistrationForm = () => {
 
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (successMessage) {
+      setShowAlert(true);
+      const timer = setTimeout(() => {
+        setShowAlert(false);
+        setSuccessMessage("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -134,7 +147,17 @@ const RegistrationForm = () => {
               >
                 Application Form
               </h2>
-              {successMessage && <Alert variant="success">{successMessage}</Alert>}
+              {showAlert && (
+                <Alert
+                  variant="success"
+                  onClose={() => setShowAlert(false)}
+                  dismissible
+                >
+                  {successMessage}
+                </Alert>
+              )}
+              {error.form && <Alert variant="danger">{error.form}</Alert>}
+
               {error.form && <Alert variant="danger">{error.form}</Alert>}
               <Form onSubmit={handleSubmit}>
                 <Row className="mb-3">
@@ -319,6 +342,7 @@ const RegistrationForm = () => {
                     {isLoading ? "Submitting..." : "Submit"}
                   </Button>
                 </div>
+                {successMessage && <Alert variant="success">{successMessage}</Alert>}
                 {error.form && <p className="text-danger mt-2">{error.form}</p>}
               </Form>
             </Card.Body>
