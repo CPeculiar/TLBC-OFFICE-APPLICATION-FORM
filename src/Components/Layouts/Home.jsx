@@ -6,7 +6,6 @@ import HeroSection from '../../assets/Images/Herosection.jpg'
 import '../Styles/Home.css'
 import Register from '../Auth/Register';
 import CustomNavbar from './CustomNavbar';
-import SupportForm from "../Layouts/Support";
 import Footer from './Footer'
 
 
@@ -56,17 +55,17 @@ const HomePage = () => {
                         <Book size={0} className="text-warning" />
                       </div>
                       <h3 className="display-4 fw-bold mb-3" style={{color: '#ffc107'}}>
-                        Welcome to
-                        {/* <br /> */}
-                        TLBC Office Application Form
+                        Welcome to  
+                        <br />
+                          TLBC Office Application Form
                       </h3>
                       <p
                         className="lead mb-4"
                         style={{ color: "white", fontStyle: "italic" }}
                       >
-                        This is a portal for the Leaders of TLBC International
-                        {/* <br /> */}
-                        Please fill the form with accurate information.
+                        This is a portal for the Leaders of TLBC International. 
+                        <br />
+                        Please fill the form with your accurate information.
                       </p>
 
                       <div

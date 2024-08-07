@@ -21,6 +21,7 @@ const RegistrationForm = () => {
     address: "",
     gender: "",
     church: "",
+    zone: "",
     officeNow: "",
     officeApply: "",
   });
@@ -76,6 +77,10 @@ const RegistrationForm = () => {
       newErrors.church = "Church is required";
     }
 
+    if (!formData.zone) {
+      newErrors.zone = "Zone is required";
+    }
+
     if (!formData.address.trim()) {
       newErrors.address = "Address is required";
     }
@@ -124,6 +129,7 @@ const RegistrationForm = () => {
         address: "",
         gender: "",
         church: "",
+        zone: "",
         officeNow: "",
         officeApply: "",
       });
@@ -229,15 +235,16 @@ const RegistrationForm = () => {
                     )}
                   </Form.Group>
                 </Row>
-
-                <Form.Group className="mb-3" controlId="address">
+                
+                <Row className="mb-3">
+                <Form.Group as={Col} md={6} controlId="address">
                   <Form.Label>Address</Form.Label>
                   <Form.Control
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Enter your Address (City, State, Country)"
+                    placeholder="Enter your Address"
                     required
                   />
                   {error.address && (
@@ -246,6 +253,26 @@ const RegistrationForm = () => {
                     </Form.Text>
                   )}
                 </Form.Group>
+                <Form.Group as={Col} md={6} controlId="gender">
+                    <Form.Label>Gender</Form.Label>
+                    <Form.Select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      required
+                    >
+                     <option value="" disabled>Select your Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </Form.Select>
+                    {error.gender && (
+                      <Form.Text className="text-danger">
+                        {error.gender}
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+
+                </Row>
 
                 <Row className="mb-3">
                   <Form.Group as={Col} md={6} controlId="church">
@@ -264,17 +291,21 @@ const RegistrationForm = () => {
                       </Form.Text>
                     )}
                   </Form.Group>
-                  <Form.Group as={Col} md={6} controlId="gender">
-                    <Form.Label>Gender</Form.Label>
+                  <Form.Group as={Col} md={6} controlId="zone">
+                    <Form.Label>Zone</Form.Label>
                     <Form.Select
-                      name="gender"
-                      value={formData.gender}
+                      name="zone"
+                      value={formData.zone}
                       onChange={handleChange}
                       required
                     >
-                     <option value="">Select your Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
+                     <option value="" disabled>Select your Zone</option>
+                     <option value="Awka zone">Awka zone</option>
+                <option value="Nnewi zone">Nnewi zone</option>
+                <option value="Owerri zone">Owerri zone</option>
+                <option value="Ekwulobia zone">Ekwulobia zone</option>
+                {/* <option value="TLBC Onitsha">TLBC Onitsha</option> */}
+
                     </Form.Select>
                     {error.gender && (
                       <Form.Text className="text-danger">
@@ -307,9 +338,9 @@ const RegistrationForm = () => {
                 <Form.Group className="mb-3" controlId="officeApply">
                   <Form.Label>
                     What offices are you applying for? <br />
-                    (If you are interested in more than one office, specify each
+                    <p style={{ fontStyle: "italic" }}>(If you are interested in more than one office, specify each
                     here. Clearly separate them with a comma (,) or write on a
-                    new line.)
+                    new line.) </p>
                   </Form.Label>
                   <Form.Control
                     as="textarea"
