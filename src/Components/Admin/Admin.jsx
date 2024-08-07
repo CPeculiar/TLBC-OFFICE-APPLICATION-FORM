@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Navbar, Nav, Form, Button, Table, Modal, Row, Col, Card } from 'react-bootstrap';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, or } from 'firebase/firestore';
 import { db } from '../Services/firebaseConfig';
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -49,10 +49,10 @@ const AdminDashboard = () => {
 
     data.forEach(submission => {
       // Process zone data
-      if (submission.zone.includes('Ekwulobia')) zoneData.Ekwulobia++;
-      else if (submission.zone.includes('Owerri')) zoneData.Owerri++;
-      else if (submission.zone.includes('Nnewi')) zoneData.Nnewi++;
-      else if (submission.zone.includes('Awka')) zoneData.Awka++;
+      if (submission.zone === 'Ekwulobia zone') zoneData.Ekwulobia++;
+      else if (submission.zone === 'Owerri zone') zoneData.Owerri++;
+      else if (submission.zone === 'Nnewi zone') zoneData.Nnewi++;
+      else if (submission.zone === 'Awka zone') zoneData.Awka++;
 
       // Process gender data
       if (submission.gender === 'Male') genderData.Male++;
@@ -66,27 +66,56 @@ const AdminDashboard = () => {
   const handleFilter = async () => {
     if (!filterType || !filterValue) return;
 
+    // let q;
+    // if (filterType === 'Name') {
+    //   q = query(
+    //     collection(db, 'applications'),
+    //     or(
+    //       where('firstName', '>=', filterValue.toLowerCase()),
+    //       where('firstName', '<=', filterValue.toLowerCase() + '\uf8ff'),
+    //       where('lastName', '>=', filterValue.toLowerCase()),
+    //       where('lastName', '<=', filterValue.toLowerCase() + '\uf8ff')
+    //     )
+    //   );
     let q;
-    if (filterType === 'Name') {
+    if (filterType === 'firstName' || filterType === 'lastName') {
       q = query(
         collection(db, 'applications'),
-        where('firstName', '>=', filterValue),
-        where('firstName', '<=', filterValue + '\uf8ff')
+        or(
+          where('firstName', '>=', filterValue),
+          where('firstName', '<=', filterValue + '\uf8ff'),
+          where('lastName', '>=', filterValue),
+          where('lastName', '<=', filterValue + '\uf8ff')
+        )
       );
     } else {
-      q = query(collection(db, 'applications'), where(filterType.toLowerCase(), '==', filterValue));
+      q = query(
+        collection(db, 'applications'),
+        where(filterType, '>=', filterValue),
+        where(filterType, '<=', filterValue + '\uf8ff')
+      );
     }
+    // } else {
+    //   q = query(
+    //     collection(db, 'applications'),
+    //     where(filterType.toLowerCase(), '>=', filterValue.toLowerCase()),
+    //     where(filterType.toLowerCase(), '<=', filterValue.toLowerCase() + '\uf8ff')
+    //   );
+    // }
 
     const querySnapshot = await getDocs(q);
     const filteredData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     setSubmissions(filteredData);
+    processSubmissionsData(filteredData);
   };
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Received Data for TLBC Application Forms", 14, 15);
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+    doc.setFontSize(18);
+    doc.text("Received Data for TLBC Application Forms", 14, 22);
+    doc.setFontSize(12);
     doc.autoTable({
-      head: [['Name', 'Phone', 'Church', 'Zone', 'Current Office(s)', 'Office Applied for', 'Gender', 'Email', 'Address', 'Submission Date',]],
+      head: [['Name', 'Phone', 'Church', 'Zone', 'Current Office(s)', 'Office Applied for', 'Gender', 'Email', 'Address', 'Submission Date']],
       body: submissions.map(s => [
         `${s.firstName} ${s.lastName}`,
         s.phone,
@@ -99,6 +128,20 @@ const AdminDashboard = () => {
         s.address,
         s.timestamp.toDate().toLocaleString()
       ]),
+      startY: 30,
+      styles: { cellPadding: 1.5, fontSize: 8 },
+      columnStyles: { 
+        0: { cellWidth: 35 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 40 },
+        5: { cellWidth: 40 },
+        6: { cellWidth: 15 },
+        7: { cellWidth: 30 },
+        8: { cellWidth: 25 },
+        9: { cellWidth: 25 }
+      }
     });
     doc.save("tlbc_form_applications.pdf");
   };
@@ -131,7 +174,7 @@ const AdminDashboard = () => {
   const HomeContent = () => (
     <>
       <Row className="mb-4">
-        <Col>
+        <Col xs={12} sm={6} md={4} lg={3} className="mb-3">
           <Card bg="primary" text="white">
             <Card.Body>
               <Card.Title>Total Submissions</Card.Title>
@@ -139,7 +182,7 @@ const AdminDashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col>
+        <Col xs={12} sm={6} md={4} lg={3} className="mb-3">
           <Card bg="success" text="white">
             <Card.Body>
               <Card.Title>Ekwulobia Zone</Card.Title>
@@ -147,7 +190,7 @@ const AdminDashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col>
+        <Col xs={12} sm={6} md={4} lg={3} className="mb-3">
           <Card bg="info" text="white">
             <Card.Body>
               <Card.Title>Owerri Zone</Card.Title>
@@ -155,7 +198,7 @@ const AdminDashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col>
+        <Col xs={12} sm={6} md={4} lg={3} className="mb-3">
           <Card bg="warning" text="dark">
             <Card.Body>
               <Card.Title>Nnewi Zone</Card.Title>
@@ -163,7 +206,7 @@ const AdminDashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col>
+        <Col xs={12} sm={6} md={4} lg={3} className="mb-3">
           <Card bg="danger" text="white">
             <Card.Body>
               <Card.Title>Awka Zone</Card.Title>
@@ -196,31 +239,44 @@ const AdminDashboard = () => {
         <Form.Group className="mb-3" controlId="filterValue">
           <Form.Control 
             type="text" 
-            placeholder="Enter filter value"
+            placeholder={`Enter ${filterType}`}
             value={filterValue}
             onChange={(e) => setFilterValue(e.target.value)}
           />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="filterType">
+        {/* <Form.Group className="mb-3" controlId="filterType">
           <Form.Select 
             value={filterType} 
             onChange={(e) => setFilterType(e.target.value)}
           >
             <option value="">Select filter type</option>
             <option value="Name">Name</option>
-            <option value="officeApply">Position</option>
             <option value="church">Church</option>
             <option value="zone">Zone</option>
             <option value="gender">Gender</option>
           </Form.Select>
+        </Form.Group> */}
+
+        <Form.Group className="mb-3" controlId="filterType">
+          <Form.Label>Filter Type</Form.Label>
+          <Form.Control as="select" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+            <option value="">Select Filter Type</option>
+            <option value="firstName">First Name</option>
+            <option value="lastName">Last Name</option>
+            <option value="phone">Phone Number</option>
+            <option value="zone">Zone</option>
+            <option value="officeApply">Office Applied For</option>
+            <option value="gender">Gender</option>
+          </Form.Control>
         </Form.Group>
-        <Button variant="primary" onClick={handleFilter} className="me-2">
+
+        <Button variant="primary" onClick={handleFilter} className="me-2 mb-2">
           Apply Filter
         </Button>
-        <Button variant="success" onClick={fetchAllSubmissions} className="me-2">
+        <Button variant="success" onClick={fetchAllSubmissions} className="me-2 mb-2">
           Get All Reports
         </Button>
-        <Button variant="info" onClick={handleDownloadPDF}>
+        <Button variant="info" onClick={handleDownloadPDF} className="mb-2">
           Download PDF
         </Button>
       </Form>
@@ -309,6 +365,5 @@ const AdminDashboard = () => {
     </Container>
   );
 };
-
 
 export default AdminDashboard;
